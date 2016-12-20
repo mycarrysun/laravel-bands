@@ -1,0 +1,39 @@
+
+// Fonts
+@import url(https://fonts.googleapis.com/css?family=Raleway:300,400,600);
+
+// Variables
+@import "variables";
+
+// Bootstrap
+@import "node_modules/bootstrap-sass/assets/stylesheets/bootstrap";
+
+@media (min-width:1600px){
+  .container{
+    width:1470px;
+  }
+}
+
+form.inline{
+  display: inline-block;
+  .form-group{
+    display: inline-block;
+  }
+}
+
+span.required{
+  color:$brand-danger;
+}
+
+// Detail Pages
+.detail-view{
+  .label{
+    font-size:100%;
+  }
+  .row{
+    margin-top:25px;
+    h5{
+      font-weight:700;
+    }
+  }
+}
