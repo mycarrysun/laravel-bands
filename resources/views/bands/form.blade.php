@@ -12,7 +12,7 @@
                                name="name"
                                id="name"
                                class="form-control"
-                               value="{{$band->name or old('name') or ''}}"
+                               value="{{$band->name or ''}}"
                         />
                     </div>
                 </div>
