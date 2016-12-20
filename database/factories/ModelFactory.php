@@ -49,6 +49,6 @@ $factory->define(App\Album::class, function (Faker\Generator $faker){
 		'number_of_tracks' => $faker->numberBetween(0,25),
 		'label' => $faker->catchPhrase,
 		'producer' => $faker->name,
-		'genre' => $genres[$faker->numberBetween(0,count($genres)-1)]
+		'genre' => $faker->randomElement($genres)
 	];
 });

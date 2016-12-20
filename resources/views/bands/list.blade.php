@@ -57,7 +57,7 @@
 
         <div class="pagination-container">
             {{$bands->appends($appends)->links()}}
-            <form action="/bands" method="GET" id="per_page_form" class="inline pull-right">
+            <form action="/bands" method="GET" class="inline pull-right">
                 <input type="hidden" name="sort" value="{{$appends['sort']}}" />
                 <input type="hidden" name="sort_dir" value="{{$appends['sort_dir']}}" />
                 <input type="hidden" name="page" value="{{$bands->currentPage()}}" />
@@ -65,7 +65,7 @@
                     <label for="per_page">Per Page</label>
                     <select id="per_page" name="per_page"
                             class="form-control"
-                            onchange="document.getElementById('per_page_form').submit()"
+                            onchange="this.form.submit()"
                     >
                         <option {{$appends['per_page'] == 5 ? 'selected' : ''}}>5</option>
                         <option {{$appends['per_page'] == 10 ? 'selected' : ''}}>10</option>

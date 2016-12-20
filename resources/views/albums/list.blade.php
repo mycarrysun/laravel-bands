@@ -71,10 +71,9 @@
         <div class="pagination-container">
             {{$albums->appends($appends)->links()}}
             <div class="pull-right">
-                <form action="/albums" method="GET" id="per_page_form" class="inline pull-right">
+                <form action="/albums" method="GET" class="inline pull-right">
                     <input type="hidden" name="sort" value="{{$appends['sort']}}"/>
                     <input type="hidden" name="sort_dir" value="{{$appends['sort_dir']}}"/>
-                    <input type="hidden" name="page" value="{{$albums->currentPage()}}"/>
                     <div class="form-group">
                         <label for="band_id">Search by Band</label>
 
@@ -93,7 +92,7 @@
 
                         <select id="band_id" name="band_id"
                                 class="form-control"
-                                onchange="document.getElementById('per_page_form').submit()"
+                                onchange="this.form.submit()"
                         >
                             <option value="">None</option>
                             @foreach($bands as $band)
@@ -105,7 +104,7 @@
                         <label for="per_page">Per Page</label>
                         <select id="per_page" name="per_page"
                                 class="form-control"
-                                onchange="document.getElementById('per_page_form').submit()"
+                                onchange="this.form.submit()"
                         >
                             <option {{$appends['per_page'] == 5 ? 'selected' : ''}}>5</option>
                             <option {{$appends['per_page'] == 10 ? 'selected' : ''}}>10</option>
