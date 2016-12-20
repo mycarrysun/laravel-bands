@@ -19,39 +19,28 @@ class BandController extends Controller {
 		$user = Auth::user();
 
 		//Get query vars for sorting/pagination
-		$per_page = Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10;
-		$sort_by  = Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name';
-		$sort_dir = Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc';
-		$query    = Input::get( 'query' );
-
+		$params = [
+			'per_page' => Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10,
+			'sort'     => Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name',
+			'sort_dir' => Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc',
+		];
 
 		if ( $user->is_admin ) {
 			//user is admin
 			//get all bands in the system
-			$bands = Band::orderBy( $sort_by, $sort_dir )
-			             ->paginate( $per_page );
+			$bands = Band::orderBy( $params['sort'], $params['sort_dir'] )
+			             ->paginate( $params['per_page'] );
 		} else {
 			//user is not an admin
 			//only get this user's bands
 			$bands = $user->bands()
-			              ->orderBy( $sort_by, $sort_dir )
-			              ->paginate( $per_page );
+			              ->orderBy( $params['sort'], $params['sort_dir'] )
+			              ->paginate( $params['per_page'] );
 		}
 
-
-		$data = [
-			'bands'   => $bands,
-
-			//use this object for query vars and pagination appends() method
-			'appends' => [
-				'per_page' => $per_page,
-				'sort'     => $sort_by,
-				'sort_dir' => $sort_dir,
-				'query'    => $query,
-			],
-		];
-
-		return view( 'bands.list', $data );
+		return view( 'bands.list' )
+			->with( 'bands', $bands )
+			->with( 'appends', $params );
 	}
 
 	/**
@@ -109,7 +98,8 @@ class BandController extends Controller {
 
 		}
 
-		return view( 'bands.view' )->with( 'band', $band );
+		return view( 'bands.view' )
+			->with( 'band', $band );
 
 	}
 
@@ -176,7 +166,8 @@ class BandController extends Controller {
 
 		}
 
-		return redirect( '/bands' )->with( 'messages', $messages );
+		return redirect( '/bands' )
+			->with( 'messages', $messages );
 
 	}
 
@@ -210,6 +201,7 @@ class BandController extends Controller {
 
 		}
 
+		//query vars for sorting/pagination
 		$params = [
 			'sort'     => Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name',
 			'sort_dir' => Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc',
@@ -217,6 +209,7 @@ class BandController extends Controller {
 			'page'     => Input::get( 'page' ),
 		];
 
-		return redirect( '/bands?' . http_build_query( $params ) )->with( 'messages', $messages );
+		return redirect( '/bands?' . http_build_query( $params ) )
+			->with( 'messages', $messages );
 	}
 }

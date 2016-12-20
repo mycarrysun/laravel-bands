@@ -5,7 +5,7 @@
         <h2>Band Detail</h2>
         <h4>{{$band->name}} </h4>
 
-        <span class="label label-{{$band->active ? 'success' : 'default'}}">{{$band->active ? 'Active' : 'Inactive'}}</span>
+        <span class="label label-{{$band->still_active ? 'success' : 'default'}}">{{$band->still_active ? 'Active' : 'Inactive'}}</span>
 
         <div class="row">
             <h5>Founded</h5>

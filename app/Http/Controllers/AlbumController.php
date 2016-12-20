@@ -19,17 +19,19 @@ class AlbumController extends Controller {
 		$user = Auth::user();
 
 		//Get query vars for sorting/pagination
-		$per_page = Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10;
-		$sort_by  = Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name';
-		$sort_dir = Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc';
-		$band_id  = Input::get( 'band_id' );
+		$params = [
+			'per_page' => Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10,
+			'sort'     => Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name',
+			'sort_dir' => Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc',
+			'band_id'  => Input::get( 'band_id' ),
+		];
 
 		if ( $user->is_admin ) {
 			//user is admin
 			//get all albums and bands in the system
-			$albums = Album::searchBand( $band_id )
-			               ->orderBy( $sort_by, $sort_dir )
-			               ->paginate( $per_page );
+			$albums = Album::searchBand( $params['band_id'] )
+			               ->orderBy( $params['sort'], $params['sort_dir'] )
+			               ->paginate( $params['per_page'] );
 
 			$bands = Band::select( 'id', 'name' )
 			             ->orderBy( 'name', 'asc' )
@@ -39,8 +41,8 @@ class AlbumController extends Controller {
 			//user is not an admin
 			//only get this user's albums and bands
 			$albums = $user->albums()
-			               ->orderBy( $sort_by, $sort_dir )
-			               ->paginate( $per_page );
+			               ->orderBy( $params['sort'], $params['sort_dir'] )
+			               ->paginate( $params['per_page'] );
 
 			$bands = $user->bands()
 			              ->select( 'id', 'name' )
@@ -49,20 +51,10 @@ class AlbumController extends Controller {
 			              ->all();
 		}
 
-		$data = [
-			'albums'  => $albums,
-			'bands'   => $bands,
-
-			//use this object for query vars and pagination appends() method
-			'appends' => [
-				'per_page' => $per_page,
-				'sort'     => $sort_by,
-				'sort_dir' => $sort_dir,
-				'band_id'  => $band_id,
-			],
-		];
-
-		return view( 'albums.list', $data );
+		return view( 'albums.list' )
+			->with( 'albums', $albums )
+			->with( 'bands', $bands )
+			->with( 'appends', $params );
 	}
 
 	/**
@@ -88,11 +80,8 @@ class AlbumController extends Controller {
 			              ->all();
 		}
 
-		$data = [
-			'bands' => $bands,
-		];
-
-		return view( 'albums.form', $data );
+		return view( 'albums.form' )
+			->with('bands', $bands);
 	}
 
 	/**
@@ -137,7 +126,8 @@ class AlbumController extends Controller {
 
 		}
 
-		return redirect( '/albums' )->with( 'messages', $messages );
+		return redirect( '/albums' )
+			->with( 'messages', $messages );
 
 	}
 
@@ -165,7 +155,8 @@ class AlbumController extends Controller {
 
 		}
 
-		return view( 'albums.view' )->with( 'album', $album );
+		return view( 'albums.view' )
+			->with( 'album', $album );
 	}
 
 	/**
@@ -206,12 +197,9 @@ class AlbumController extends Controller {
 			              ->all();
 		}
 
-		$data = [
-			'bands' => $bands, //populates dropdown
-			'album' => $album,
-		];
-
-		return view( 'albums.form', $data );
+		return view( 'albums.form' )
+			->with('bands', $bands)
+			->with('album', $album);
 	}
 
 
@@ -256,7 +244,8 @@ class AlbumController extends Controller {
 
 		}
 
-		return redirect( '/albums' )->with( 'messages', $messages );
+		return redirect( '/albums' )
+			->with( 'messages', $messages );
 
 	}
 
@@ -299,12 +288,13 @@ class AlbumController extends Controller {
 
 		//get current query vars if we are on the list page
 		$params = [
-			'sort'     => Input::get( 'sort' )     ? Input::get( 'sort' )     : 'name',
+			'sort'     => Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name',
 			'sort_dir' => Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc',
 			'per_page' => Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10,
 			'page'     => Input::get( 'page' ),
 		];
 
-		return redirect( '/albums?' . http_build_query( $params ) )->with( 'messages', $messages );
+		return redirect( '/albums?' . http_build_query( $params ) )
+			->with( 'messages', $messages );
 	}
 }

@@ -12,7 +12,7 @@
                                name="name"
                                id="name"
                                class="form-control"
-                               value="{{$band->name or ''}}"
+                               value="{{$band->name or old('name') or ''}}"
                         />
                     </div>
                 </div>
@@ -55,6 +55,7 @@
                             <input type="checkbox"
                                    name="still_active"
                                    id="still_active"
+                                   value="true"
                                    {{isset($band) && $band->still_active ? 'checked' : ''}}
                             /> Active?
                         </label>
