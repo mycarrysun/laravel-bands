@@ -14,6 +14,17 @@
 Auth::routes();
 
 Route::group(['middleware' => 'auth'], function(){
+
+	/**
+	 * Resources
+	 */
+	Route::resource('/bands', 'BandController');
+
+	Route::resource('/albums', 'AlbumController');
+
+
+
+	//Redirect for / and /home
 	Route::get('/', function(){
 		return redirect('/bands');
 	});
@@ -22,8 +33,6 @@ Route::group(['middleware' => 'auth'], function(){
 		return redirect('/bands');
 	});
 
-	Route::resource('/bands', 'BandController');
 
-	Route::resource('/albums', 'AlbumController');
 });
 

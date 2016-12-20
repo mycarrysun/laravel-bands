@@ -61,15 +61,4 @@ class Band extends Model {
 			$this->attributes['start_date'] = Carbon::createFromFormat( 'm/d/Y', $date );
 		}
 	}
-
-
-	/******************************************/
-	//                 Scopes
-	/******************************************/
-	public function scopeSearch( $query, $search ) {
-		if ( ! empty( $search ) ) {
-			return $query->where( 'name', 'like', "%$search%" )
-			             ->orwhere( 'website', 'like', "%$search%" );
-		}
-	}
 }

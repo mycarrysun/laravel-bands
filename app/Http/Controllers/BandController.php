@@ -16,50 +16,35 @@ class BandController extends Controller {
 	 * @return View
 	 */
 	public function index() {
-		$user     = Auth::user();
+		$user = Auth::user();
+
+		//Get query vars for sorting/pagination
 		$per_page = Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10;
 		$sort_by  = Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name';
 		$sort_dir = Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc';
 		$query    = Input::get( 'query' );
 
-		if ( $per_page == - 1 ) {
-			//pass -1 to get all bands - ie non-paginated
-			if ( $user->is_admin ) {
-				//user is admin
-				//get all bands in the system
-				$bands = Band::search( $query )
-				             ->orderBy( $sort_by, $sort_dir )
-				             ->get()
-				             ->all();
-			} else {
-				//user is not an admin
-				//only get this user's bands
-				$bands = $user->bands()
-				              ->search( $query )
-				              ->orderBy( $sort_by, $sort_dir )
-				              ->get()
-				              ->all();
-			}
+
+		if ( $user->is_admin ) {
+			//user is admin
+			//get all bands in the system
+			$bands = Band::search( $query )
+			             ->orderBy( $sort_by, $sort_dir )
+			             ->paginate( $per_page );
 		} else {
-			//paginate everything else
-			if ( $user->is_admin ) {
-				//user is admin
-				//get all bands in the system
-				$bands = Band::search( $query )
-				             ->orderBy( $sort_by, $sort_dir )
-				             ->paginate( $per_page );
-			} else {
-				//user is not an admin
-				//only get this user's bands
-				$bands = $user->bands()
-				              ->search( $query )
-				              ->orderBy( $sort_by, $sort_dir )
-				              ->paginate( $per_page );
-			}
+			//user is not an admin
+			//only get this user's bands
+			$bands = $user->bands()
+			              ->search( $query )
+			              ->orderBy( $sort_by, $sort_dir )
+			              ->paginate( $per_page );
 		}
+
 
 		$data = [
 			'bands'   => $bands,
+
+			//use this object for query vars and pagination appends() method
 			'appends' => [
 				'per_page' => $per_page,
 				'sort'     => $sort_by,
@@ -76,7 +61,7 @@ class BandController extends Controller {
 	 *
 	 * @return View
 	 */
-	public function create(){
+	public function create() {
 		return view( 'bands.form' );
 	}
 
@@ -117,16 +102,16 @@ class BandController extends Controller {
 
 		if ( ! $user->can( 'view', $band ) ) {
 
-			return redirect('/bands')->with('messages', [
+			return redirect( '/bands' )->with( 'messages', [
 				[
-					'type' => 'danger',
-					'content' => 'You are not allowed to view this band.'
-				]
-			]);
+					'type'    => 'danger',
+					'content' => 'You are not allowed to view this band.',
+				],
+			] );
 
 		}
 
-		return view('bands.view')->with('band', $band);
+		return view( 'bands.view' )->with( 'band', $band );
 
 	}
 
@@ -135,29 +120,28 @@ class BandController extends Controller {
 	 *
 	 * @return View
 	 */
-	public function edit($id){
+	public function edit( $id ) {
 
 		$user = Auth::user();
 
-		$band = Band::findOrFail($id);
+		$band = Band::findOrFail( $id );
 
-		if(!$user->can('update', $band)){
+		if ( ! $user->can( 'update', $band ) ) {
 			//user not allowed to edit this band
-			return redirect('/bands')->with( 'messages', [
+			return redirect( '/bands' )->with( 'messages', [
 				[
-					'type' => 'danger',
-					'content' => 'You are not allowed to edit this band.'
-				]
-			]);
+					'type'    => 'danger',
+					'content' => 'You are not allowed to edit this band.',
+				],
+			] );
 		}
 
 		$data = [
-			'band' => $band
+			'band' => $band,
 		];
 
-		return view('bands.form', $data);
+		return view( 'bands.form', $data );
 	}
-
 
 
 	/**
@@ -235,8 +219,6 @@ class BandController extends Controller {
 			'page'     => Input::get( 'page' ),
 		];
 
-		return redirect( '/bands?' . http_build_query( $params ) )->with( [
-			'messages' => $messages,
-		] );
+		return redirect( '/bands?' . http_build_query( $params ) )->with( 'messages', $messages );
 	}
 }

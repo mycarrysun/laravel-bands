@@ -16,7 +16,9 @@ class AlbumController extends Controller {
 	 * @return View
 	 */
 	public function index() {
-		$user     = Auth::user();
+		$user = Auth::user();
+
+		//Get query vars for sorting/pagination
 		$per_page = Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10;
 		$sort_by  = Input::get( 'sort' ) ? Input::get( 'sort' ) : 'name';
 		$sort_dir = Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc';
@@ -24,22 +26,24 @@ class AlbumController extends Controller {
 
 		if ( $user->is_admin ) {
 			//user is admin
-			//get all albums in the system
+			//get all albums and bands in the system
 			$albums = Album::searchBand( $band_id )
 			               ->orderBy( $sort_by, $sort_dir )
 			               ->paginate( $per_page );
 
-			$bands = Band::orderBy( 'name', 'asc' )
+			$bands = Band::select( 'id', 'name' )
+			             ->orderBy( 'name', 'asc' )
 			             ->get()
 			             ->all();
 		} else {
 			//user is not an admin
-			//only get this user's albums
+			//only get this user's albums and bands
 			$albums = $user->albums()
 			               ->orderBy( $sort_by, $sort_dir )
 			               ->paginate( $per_page );
 
 			$bands = $user->bands()
+			              ->select( 'id', 'name' )
 			              ->orderBy( 'name', 'asc' )
 			              ->get()
 			              ->all();
@@ -47,7 +51,9 @@ class AlbumController extends Controller {
 
 		$data = [
 			'albums'  => $albums,
-			'bands' => $bands,
+			'bands'   => $bands,
+
+			//use this object for query vars and pagination appends() method
 			'appends' => [
 				'per_page' => $per_page,
 				'sort'     => $sort_by,
@@ -97,12 +103,15 @@ class AlbumController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store( AlbumRequest $request ) {
-		$messages = [];
+		$messages = []; //sends messages back to page
 
 		$band = Band::findOrFail( $request->get( 'band_id' ) );
 		$user = Auth::user();
 
 		if ( $user->can( 'update', $band ) ) {
+			//user is authenticated to update the band
+			//we can add a new album
+
 			$album = new Album;
 
 			$album->fill( $request->all() );
@@ -111,23 +120,24 @@ class AlbumController extends Controller {
 
 			$album->save();
 
-			return response()->json( [
-				'message' => [
-					'type'    => 'success',
-					'content' => "You have successfully added the album: $album->name.",
-				],
-				'created' => $album,
+			//Save successful
+			//create message to notify user
+			array_push( $messages, [
+				'type'    => 'success',
+				'content' => "You have successfully added the album: $album->name.",
 			] );
+
 		} else {
 
-			return response()->json( [
-				'message' => [
-					'type'    => 'danger',
-					'content' => 'You are not allowed to create an album for this band.',
-				],
-			], 401 );
+			//Save FAILED because user is not authorized
+			array_push( $messages, [
+				'type'    => 'danger',
+				'content' => 'You are not allowed to create an album for this band.',
+			] );
+
 		}
 
+		return redirect( '/albums' )->with( 'messages', $messages );
 
 	}
 
@@ -144,16 +154,18 @@ class AlbumController extends Controller {
 
 		if ( ! $user->can( 'view', $album ) ) {
 
-			return redirect('/albums')->with('messages', [
+			//If user is not authorized to view this album,
+			//redirect and show error message
+			return redirect( '/albums' )->with( 'messages', [
 				[
-					'type' => 'danger',
-					'content' => 'You are not allowed to view this album.'
-				]
-			]);
+					'type'    => 'danger',
+					'content' => 'You are not allowed to view this album.',
+				],
+			] );
 
 		}
 
-		return view('albums.view')->with('album', $album);
+		return view( 'albums.view' )->with( 'album', $album );
 	}
 
 	/**
@@ -167,7 +179,8 @@ class AlbumController extends Controller {
 		$album = Album::findOrFail( $id );
 
 		if ( ! $user->can( 'update', $album ) ) {
-			//user not allowed to edit this band
+			//If user is not allowed to edit this band,
+			//redirect and show error message
 			return redirect( '/albums' )->with( 'messages', [
 				[
 					'type'    => 'danger',
@@ -179,26 +192,27 @@ class AlbumController extends Controller {
 		if ( $user->is_admin ) {
 			//user is admin
 			//get all bands in the system
-			$bands = Band::orderBy( 'name', 'asc' )
+			$bands = Band::select( 'name', 'id' )
+			             ->orderBy( 'name', 'asc' )
 			             ->get()
 			             ->all();
 		} else {
 			//user is not an admin
 			//only get this user's bands
 			$bands = $user->bands()
+			              ->select( 'id', 'name' )
 			              ->orderBy( 'name', 'asc' )
 			              ->get()
 			              ->all();
 		}
 
 		$data = [
-			'bands' => $bands,
+			'bands' => $bands, //populates dropdown
 			'album' => $album,
 		];
 
 		return view( 'albums.form', $data );
 	}
-
 
 
 	/**
@@ -210,11 +224,14 @@ class AlbumController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function update( AlbumRequest $request, $id ) {
+		$messages = []; //use for sending messages to the page
+
 		$album = Album::findOrFail( $id );
 		$band  = Band::findOrFail( $request->get( 'band_id' ) );
 		$user  = Auth::user();
 
-		if ( $user->can( 'update', $album ) && $user->can( 'update', $band ) ) {
+		if ( $user->can( 'update', $album ) ) {
+			//user is authorized to make updates to the album
 
 			$album->fill( $request->all() );
 
@@ -222,25 +239,24 @@ class AlbumController extends Controller {
 
 			$album->save();
 
-			return response()->json( [
-				'message' => [
-					'type'    => 'success',
-					'content' => "You have successfully updated the album: $album->name.",
-				],
-				'updated' => $album,
+			//album updated
+			//prepare success message
+			array_push( $messages, [
+				'type'    => 'success',
+				'content' => "You have successfully updated the album: $album->name.",
 			] );
 
 		} else {
 
-			return response()->json( [
-				'message' => [
-					'type'    => 'danger',
-					'content' => 'You are not allowed to update this album.',
-				],
-			], 401 );
+			//user is not authorized
+			array_push( $messages, [
+				'type'    => 'danger',
+				'content' => 'You are not allowed to update this album.',
+			] );
 
 		}
 
+		return redirect( '/albums' )->with( 'messages', $messages );
 
 	}
 
@@ -252,16 +268,19 @@ class AlbumController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function destroy( $id ) {
-		$messages = [];
+		$messages = []; //use for sending messages to the page
 
 		$user = Auth::user();
 
 		$album = Album::findOrFail( $id );
 
 		if ( $user->can( 'delete', $album ) ) {
+			//user is authorized to delete the album
 
 			$album->delete();
 
+			//delete successful
+			//prepare success message
 			array_push( $messages, [
 				'type'    => 'success',
 				'content' => 'Album deleted.',
@@ -269,6 +288,8 @@ class AlbumController extends Controller {
 
 		} else {
 
+			//delete FAILED
+			//user is not authorized
 			array_push( $messages, [
 				'type'    => 'danger',
 				'content' => 'You are not allowed to delete this album.',
@@ -276,6 +297,14 @@ class AlbumController extends Controller {
 
 		}
 
-		return redirect( '/albums' )->with( 'messages', $messages );
+		//get current query vars if we are on the list page
+		$params = [
+			'sort'     => Input::get( 'sort' )     ? Input::get( 'sort' )     : 'name',
+			'sort_dir' => Input::get( 'sort_dir' ) ? Input::get( 'sort_dir' ) : 'asc',
+			'per_page' => Input::get( 'per_page' ) ? Input::get( 'per_page' ) : 10,
+			'page'     => Input::get( 'page' ),
+		];
+
+		return redirect( '/albums?' . http_build_query( $params ) )->with( 'messages', $messages );
 	}
 }
