@@ -54,7 +54,7 @@
                         <a class="btn btn-warning" href="/albums/{{$album->id}}/edit">
                             <i class="glyphicon glyphicon-edit"></i>
                         </a>
-                        <form action="/albums/{{$album->id}}" method="POST" class="inline">
+                        <form action="/albums/{{$album->id}}" method="POST" class="inline" onsubmit="deleteAlbum()">
                             <button type="submit" class="btn btn-danger">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </button>
@@ -69,18 +69,25 @@
         </table>
 
         <div class="pagination-container">
+            {{-- Display pagination with links that have query data sent back from previous request --}}
             {{$albums->appends($appends)->links()}}
+
+            {{-- Changes the rows per page and filters by band --}}
             <div class="pull-right">
                 <form action="/albums" method="GET" class="inline pull-right">
+                    {{-- Existing sort data --}}
+                    {{-- We leave out current page in case that page does not exist when a band is selected --}}
                     <input type="hidden" name="sort" value="{{$appends['sort']}}"/>
                     <input type="hidden" name="sort_dir" value="{{$appends['sort_dir']}}"/>
+
+                    {{-- Filters by the selected band --}}
                     <div class="form-group">
                         <label for="band_id">Search by Band</label>
 
                         {{-- If we are filtered by a band, we add a "Reset" button the user can click --}}
                         @if(isset($appends['band_id']) && $appends['band_id'] > 0)
 
-                        {{-- We remove the band id from the $appends so we can build the query --}}
+                        {{-- We remove the band id from the $appends (temporarily) so we can build the query --}}
                         @php $band_id = $appends['band_id']; unset($appends['band_id']); @endphp
 
                         <a href="/albums?{{http_build_query($appends)}}">Reset</a>
@@ -100,6 +107,8 @@
                             @endforeach
                         </select>
                     </div>
+
+                    {{-- Changes the rows per page --}}
                     <div class="form-group">
                         <label for="per_page">Per Page</label>
                         <select id="per_page" name="per_page"
@@ -116,6 +125,11 @@
                 </form>
             </div>
         </div>
-
     </div>
+    <script>
+        function deleteAlbum(){
+            if(!confirm('Are you sure you want to delete this album?'))
+                event.preventDefault();
+        }
+    </script>
 @endsection

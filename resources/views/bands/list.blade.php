@@ -11,6 +11,7 @@
             <thead>
             <tr>
                 <th>
+                    {{-- Each query string checks if that column is being sorted so when clicked, the direction is reversed --}}
                     <a href="/bands?sort=name&sort_dir={{$appends['sort'] == 'name' && $appends['sort_dir'] == 'asc' ? 'desc' : 'asc'}}&page={{$bands->currentPage()}}">Band Name</a>
                 </th>
                 <th>
@@ -33,19 +34,25 @@
                     </td>
                     <td>{{$band->website}}</td>
                     <td>{{$band->start_date}}</td>
-                    <td>{{$band->still_active ? 'Yes' : 'No'}}</td>
+                    <td>
+                        <span class="label label-small label-{{$band->still_active ? 'success' : 'default'}}">{{$band->still_active ? 'Active' : 'Inactive'}}</span>
+                    </td>
                     <td>
                         <a class="btn btn-warning" href="/bands/{{$band->id}}/edit">
                             <i class="glyphicon glyphicon-edit"></i>
                         </a>
-                        <form action="/bands/{{$band->id}}" method="POST" class="inline">
+                        <form action="/bands/{{$band->id}}" method="POST" class="inline" onsubmit="deleteBand()">
                             <button type="submit" class="btn btn-danger">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </button>
+
+                            {{-- Persists existing sort data and/or current page --}}
                             <input type="hidden" name="sort" value="{{$appends['sort']}}" />
                             <input type="hidden" name="sort_dir" value="{{$appends['sort_dir']}}" />
                             <input type="hidden" name="page" value="{{$bands->currentPage()}}" />
                             <input type="hidden" name="per_page" value="{{$appends['per_page']}}" />
+
+                            {{-- Spoof the DELETE method --}}
                             {{ method_field('DELETE') }}
                             {{ csrf_field() }}
                         </form>
@@ -56,11 +63,18 @@
         </table>
 
         <div class="pagination-container">
+            {{-- Display pagination with links that have query data sent back from previous request --}}
             {{$bands->appends($appends)->links()}}
+
+            {{-- Changes the rows per page --}}
             <form action="/bands" method="GET" class="inline pull-right">
+
+                {{--Existing sort data and current page --}}
                 <input type="hidden" name="sort" value="{{$appends['sort']}}" />
                 <input type="hidden" name="sort_dir" value="{{$appends['sort_dir']}}" />
                 <input type="hidden" name="page" value="{{$bands->currentPage()}}" />
+
+                {{-- Changes rows per page --}}
                 <div class="form-group">
                     <label for="per_page">Per Page</label>
                     <select id="per_page" name="per_page"
@@ -76,6 +90,11 @@
                 </div>
             </form>
         </div>
-
     </div>
+    <script>
+        function deleteBand(){
+            if(!confirm('Are you sure you want to delete this band?'))
+                event.preventDefault();
+        }
+    </script>
 @endsection
