@@ -2,6 +2,7 @@
 
 @section('content')
     <div class="container">
+        {{-- Form action is modified if we are editing an item --}}
         <form action="/albums{{ isset($album) ? '/'.$album->id : '' }}" method="POST">
             <h2 class="text-center">{{ isset($album) ? 'Edit '.$album->name : 'New Album' }}</h2>
             <div class="row">
@@ -126,6 +127,7 @@
                 </div>
             </div>
 
+            {{-- Spoof PUT method if editing an item --}}
             {{ isset($album) ? method_field('PUT') : '' }}
             {{ csrf_field() }}
         </form>

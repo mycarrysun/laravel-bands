@@ -2,6 +2,7 @@
 
 @section('content')
     <div class="container">
+        {{--Form action is modified if we are editing an item --}}
         <form action="/bands{{ isset($band) ? '/'.$band->id : '' }}" method="POST">
             <h2 class="text-center">{{ isset($band) ? 'Edit '.$band->name : 'New Band' }}</h2>
             <div class="row">
@@ -74,6 +75,7 @@
                 </div>
             </div>
 
+            {{-- Spoof PUT method if we are editing an item --}}
             {{ isset($band) ? method_field('PUT') : '' }}
             {{ csrf_field() }}
         </form>

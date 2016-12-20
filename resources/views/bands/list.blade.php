@@ -41,7 +41,7 @@
                         <a class="btn btn-warning" href="/bands/{{$band->id}}/edit">
                             <i class="glyphicon glyphicon-edit"></i>
                         </a>
-                        <form action="/bands/{{$band->id}}" method="POST" class="inline" onsubmit="deleteBand()">
+                        <form action="/bands/{{$band->id}}" method="POST" class="inline" onsubmit="confirmDelete('band')">
                             <button type="submit" class="btn btn-danger">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </button>
@@ -91,10 +91,4 @@
             </form>
         </div>
     </div>
-    <script>
-        function deleteBand(){
-            if(!confirm('Are you sure you want to delete this band?'))
-                event.preventDefault();
-        }
-    </script>
 @endsection

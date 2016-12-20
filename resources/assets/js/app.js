@@ -27,5 +27,19 @@ require('./vendor/datepicker/bootstrap-datepicker');
         };
 
         $('.datepicker').datepicker(options);
+
+        //check if function exists already
+        if(!window.hasOwnProperty('confirmDelete')){
+            /**
+             * Use this for confirming deletion to the user
+             *
+             * @param item
+             */
+            window.confirmDelete = (item) => {
+                if(!confirm('Are you sure you want to delete this '+item+'?')){
+                    event.preventDefault();
+                }
+            }
+        }
     })
 })(jQuery);

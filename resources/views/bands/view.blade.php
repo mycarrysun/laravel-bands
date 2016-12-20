@@ -34,10 +34,11 @@
                >
                 <i class="glyphicon glyphicon-pencil"></i> Edit
             </a>
-            <form action="/bands/{{$band->id}}" method="POST" class="inline">
+            <form action="/bands/{{$band->id}}" method="POST" class="inline" onsubmit="confirmDelete('band')">
                 <button type="submit" class="btn btn-danger">
                     <i class="glyphicon glyphicon-trash"></i> Delete
                 </button>
+                {{-- Spoof the DELETE method --}}
                 {{ method_field('DELETE') }}
                 {{ csrf_field() }}
             </form>

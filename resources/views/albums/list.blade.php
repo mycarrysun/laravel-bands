@@ -54,7 +54,7 @@
                         <a class="btn btn-warning" href="/albums/{{$album->id}}/edit">
                             <i class="glyphicon glyphicon-edit"></i>
                         </a>
-                        <form action="/albums/{{$album->id}}" method="POST" class="inline" onsubmit="deleteAlbum()">
+                        <form action="/albums/{{$album->id}}" method="POST" class="inline" onsubmit="confirmDelete('album')">
                             <button type="submit" class="btn btn-danger">
                                 <i class="glyphicon glyphicon-trash"></i>
                             </button>
@@ -126,10 +126,4 @@
             </div>
         </div>
     </div>
-    <script>
-        function deleteAlbum(){
-            if(!confirm('Are you sure you want to delete this album?'))
-                event.preventDefault();
-        }
-    </script>
 @endsection

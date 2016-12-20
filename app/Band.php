@@ -24,12 +24,23 @@ class Band extends Model {
 		'still_active',
 	];
 
+	/**
+	 * The attributes that are cast to native types
+	 *
+	 * @var array
+	 */
+	protected $casts = [
+		'still_active' => 'boolean'
+	];
+
 
 	/******************************************/
 	//              Relationships
 	/******************************************/
 	/**
 	 * Get the user for this band
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
 	 */
 	public function user() {
 		return $this->belongsTo( 'App\User' );
@@ -37,6 +48,8 @@ class Band extends Model {
 
 	/**
 	 * Get the albums for this band
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
 	 */
 	public function albums() {
 		return $this->hasMany( 'App\Album' );
@@ -46,6 +59,11 @@ class Band extends Model {
 	/******************************************/
 	//                Accessors
 	/******************************************/
+	/**
+	 * Get the start_date attribute
+	 *
+	 * @return false|string
+	 */
 	public function getStartDateAttribute() {
 		if ( ! empty( $this->attributes['start_date'] ) ) {
 			return date( 'm/d/Y', strtotime( $this->attributes['start_date'] ) );
@@ -56,6 +74,11 @@ class Band extends Model {
 	/*******************************************/
 	//                Mutators
 	/*******************************************/
+	/**
+	 * Set the start_date attribute
+	 *
+	 * @param $date
+	 */
 	public function setStartDateAttribute( $date ) {
 		if ( ! empty( $date ) ) {
 			$this->attributes['start_date'] = Carbon::createFromFormat( 'm/d/Y', $date );

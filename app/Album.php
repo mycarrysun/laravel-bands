@@ -5,7 +5,6 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
-use Illuminate\Database\Query\Builder;
 
 class Album extends Model {
 	use SoftDeletes;
@@ -29,16 +28,9 @@ class Album extends Model {
 	];
 
 	/**
-	 * The attributes that are appended to it's JSON form.
+	 * The attributes that are cast to native types
 	 *
 	 * @var array
-	 */
-	protected $appends = [
-		'band_name',
-	];
-
-	/**
-	 * The attributes that are cast to native types
 	 */
 	protected $casts = [
 		'number_of_tracks' => 'integer',
@@ -49,7 +41,9 @@ class Album extends Model {
 	//              Relationships
 	/******************************************/
 	/**
-	 * Get the user for this album
+	 * Get the user that created this album
+	 *
+	 * @return User
 	 */
 	public function user() {
 		return $this->band->user;
@@ -57,6 +51,8 @@ class Album extends Model {
 
 	/**
 	 * Get the band this album belongs to
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
 	 */
 	public function band() {
 		return $this->belongsTo( 'App\Band' );
@@ -66,33 +62,48 @@ class Album extends Model {
 	/******************************************/
 	//                Accessors
 	/******************************************/
+	/**
+	 * Get recorded_date attribute
+	 *
+	 * @return false|string
+	 */
 	public function getRecordedDateAttribute() {
 		if ( ! empty( $this->attributes['recorded_date'] ) ) {
 			return date( 'm/d/Y', strtotime( $this->attributes['recorded_date'] ) );
 		}
 	}
 
+	/**
+	 * Get release_date attribute
+	 *
+	 * @return false|string
+	 */
 	public function getReleaseDateAttribute() {
 		if ( ! empty( $this->attributes['release_date'] ) ) {
 			return date( 'm/d/Y', strtotime( $this->attributes['release_date'] ) );
 		}
 	}
 
-	public function getBandNameAttribute() {
-		return $this->band['name'];
-	}
-
-
 
 	/*******************************************/
 	//                Mutators
 	/*******************************************/
+	/**
+	 * Set recorded_date attribute
+	 *
+	 * @param $date
+	 */
 	public function setRecordedDateAttribute( $date ) {
 		if ( ! empty( $date ) ) {
 			$this->attributes['recorded_date'] = Carbon::createFromFormat( 'm/d/Y', $date );
 		}
 	}
 
+	/**
+	 * Set release_date attribute
+	 *
+	 * @param $date
+	 */
 	public function setReleaseDateAttribute( $date ) {
 		if ( ! empty( $date ) ) {
 			$this->attributes['release_date'] = Carbon::createFromFormat( 'm/d/Y', $date );
@@ -103,6 +114,14 @@ class Album extends Model {
 	/******************************************/
 	//                 Scopes
 	/******************************************/
+	/**
+	 * Filter albums by the selected band ID
+	 *
+	 * @param $query
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
 	public function scopeSearchBand( $query, $id ) {
 		if ( ! empty( $id ) ) {
 			return $query->where('band_id', $id);
