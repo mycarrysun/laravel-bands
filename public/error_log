@@ -1,0 +1,4 @@
+[17-Dec-2016 20:04:47 EST] PHP Fatal error:  Class 'App\Http\Controllers\Auth' not found in /home/nextwebdev/bands/app/Http/Controllers/BandController.php on line 17
+[19-Dec-2016 21:00:02 EST] PHP Fatal error:  Class 'Form' not found in /home/nextwebdev/simplebands/storage/framework/views/fa0d3203302c2509133aaf668dcc941e91096c33.php on line 46
+[19-Dec-2016 21:34:04 EST] PHP Parse error:  syntax error, unexpected ';' in /home/nextwebdev/simplebands/storage/framework/views/c21a1655cddb4551b2c762bbbf3922ab7591c196.php on line 99
+[19-Dec-2016 21:34:47 EST] PHP Parse error:  syntax error, unexpected ';' in /home/nextwebdev/simplebands/storage/framework/views/c21a1655cddb4551b2c762bbbf3922ab7591c196.php on line 99
