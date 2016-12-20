@@ -28,14 +28,12 @@ class BandController extends Controller {
 		if ( $user->is_admin ) {
 			//user is admin
 			//get all bands in the system
-			$bands = Band::search( $query )
-			             ->orderBy( $sort_by, $sort_dir )
+			$bands = Band::orderBy( $sort_by, $sort_dir )
 			             ->paginate( $per_page );
 		} else {
 			//user is not an admin
 			//only get this user's bands
 			$bands = $user->bands()
-			              ->search( $query )
 			              ->orderBy( $sort_by, $sort_dir )
 			              ->paginate( $per_page );
 		}
